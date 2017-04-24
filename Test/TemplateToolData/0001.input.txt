@@ -1,0 +1,2 @@
+-- param1  param2
+Hello <% param1 %> - this is from <% param2 %>

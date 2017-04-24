@@ -1,0 +1,11 @@
+const apply = param1 => param2 =>  {
+var r=[];
+r.push("Hello ");
+r.push(param1);
+r.push(" - this is from ");
+r.push(param2);
+return r.join("");
+};
+
+
+module.exports = apply;

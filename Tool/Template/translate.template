@@ -1,0 +1,8 @@
+> const Template = mrequire("core:Text.Template:1.0.3");
++<% this.header %>
++const apply = <% this.parameters.map(x => x + ' => ').join('') %> {
+<% Template.toJavaScript(this.body).withDefault("") %>
+};
+
+
+module.exports = apply;
