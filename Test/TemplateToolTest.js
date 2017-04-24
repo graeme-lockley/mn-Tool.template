@@ -14,11 +14,6 @@ Promise.all([
     FileSystem.readFile(__dirname + "/TemplateToolData/0001.output.txt")
 ]).then(output => {
     suite.case("simple template translation", () => {
-        console.log("---");
-        console.log(Translate(output[0]).value[1]);
-        console.log("---");
-        console.log(output[1]);
-        console.log("---");
         Assert.deepEqual(Translate(output[0]), Result.Okay(output[1]));
     });
 });

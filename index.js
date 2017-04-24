@@ -121,7 +121,6 @@ function use(fileName) {
 
     if (!hasTarget() || targetOlderThanSource()) {
         const result = compile(fullFileName, targetName);
-		console.error(result);
         if (result.isError()) {
             throw new Error(result.toString());
         }

@@ -2,29 +2,36 @@ const FS = require("fs");
 const Result = mrequire("core:Data.Result:1.0.0");
 const Template = mrequire("core:Text.Template:1.0.3");
 
-const extractRE = /([^~]*)--(.*\n)(.*)$/m;
-
 
 const transformTemplate = model =>
     Template.compile(FS.readFileSync(__dirname + "/translate.template", {encoding: "utf8"}))
         .andThen(t => Result.Okay(t.apply(model)));
 
 
-const transform = content => {
-    const parseContent = extractRE.exec(content);
+const parseContent = content => {
+    const indexOfPercentages = content.indexOf("%%%");
 
-    if (parseContent) {
-        const data = {
-            header: parseContent[1],
-            parameters: parseContent[2].trim().split(/[ \t]+/),
-            body: parseContent[3]
-        };
-
-        return transformTemplate(data);
+    if (indexOfPercentages === -1) {
+        return Result.Error("Error: Template does not contain a %%%");
     } else {
-        return Result.Error("Unable to parse the content");
+        const indexOfNewline = content.indexOf("\n", indexOfPercentages);
+
+        if (indexOfNewline === -1) {
+            return Result.Error("Error: Template does not contain a %%% ending within a newline");
+        } else {
+            return Result.Okay({
+                header: content.substring(0, indexOfPercentages),
+                parameters: content.substring(indexOfPercentages + 3, indexOfNewline).trim().split(/[ \t]+/),
+                body: content.substring(indexOfNewline + 1)
+            });
+        }
     }
 };
+
+
+const transform = content =>
+    parseContent(content)
+        .andThen(transformTemplate);
 
 
 module.exports = transform;
