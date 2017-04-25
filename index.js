@@ -1,6 +1,7 @@
 const Array = mrequire("core:Data.Array:v1.0.0");
 const FS = require("fs");
 const Maybe = mrequire("core:Data.Maybe:v1.0.0");
+const SyncFileSystem = require("./System/IO/Native/SyncFileSystem");
 const Path = require("path");
 const Result = mrequire("core:Data.Result:1.0.0");
 const Translate = require("./Tool/Template/Translate");
@@ -57,39 +58,12 @@ assumptionEqual(splitFileName("/usr/bob/Token.1.2.3.4.adt"), Array.from(["/usr/b
 assumptionEqual(splitFileName("/usr/bob/Token"), Array.from(["/usr/bob/Token", "", ""]));
 
 
-function modificationDate(fileName) {
-    try {
-        return Maybe.Just(FS.statSync(fileName).mtime);
-    } catch (e) {
-        return Maybe.Nothing;
-    }
-}
-
-
 function compile(sourceName, targetName) {
     console.log(`Compiling ${sourceName} using template`);
 
-    return loadFile(sourceName)
+    return SyncFileSystem.readFile(sourceName)
         .andThen(content => Translate(content))
-        .andThen(content => writeFile(targetName, content));
-}
-
-
-function loadFile(fileName) {
-    try {
-        return Result.Okay(FS.readFileSync(fileName, {encoding: "utf8"}));
-    } catch (e) {
-        return Result.Error(e.toString());
-    }
-}
-
-
-function writeFile(fileName, content) {
-    try {
-        return Result.Okay(FS.writeFileSync(fileName, content));
-    } catch (e) {
-        return Result.Error(e.toString());
-    }
+        .andThen(content => SyncFileSystem.writeFile(targetName, content));
 }
 
 
@@ -98,25 +72,20 @@ function use(fileName) {
     const splitName = splitFileName(fullFileName);
     const targetName = splitName.at(0).withDefault("") + ".js";
 
-    function hasTarget() {
-        try {
-            FS.statSync(targetName);
-            return true;
-        }
-        catch (e) {
-            return false;
-        }
-    }
+
+    const modificationDate = fileName =>
+        SyncFileSystem.stat(fileName).map(s => s.mtime);
+
+
+    const hasTarget = () =>
+        SyncFileSystem.fileExists(targetName);
+
 
     function targetOlderThanSource() {
-        try {
-            const sourceDateTime = modificationDate(fullFileName);
-            const targetDateTime = modificationDate(targetName);
+        const sourceDateTime = modificationDate(fullFileName);
+        const targetDateTime = modificationDate(targetName);
 
-            return sourceDateTime.map(t => t.getTime()).withDefault(0) >= targetDateTime.map(t => t.getTime()).withDefault(0);
-        } catch (e) {
-            return false;
-        }
+        return sourceDateTime.map(t => t.getTime()).withDefault(0) >= targetDateTime.map(t => t.getTime()).withDefault(0);
     }
 
     if (!hasTarget() || targetOlderThanSource()) {
