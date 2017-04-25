@@ -1,4 +1,5 @@
 const FS = require("fs");
+const NativeString = require("../../Data/Native/String");
 const Result = mrequire("core:Data.Result:1.0.0");
 const Template = mrequire("core:Text.Template:1.0.3");
 
@@ -8,25 +9,22 @@ const transformTemplate = model =>
         .andThen(t => Result.Okay(t.apply(model)));
 
 
-const parseContent = content => {
-    const indexOfPercentages = content.indexOf("%%%");
-
-    if (indexOfPercentages === -1) {
-        return Result.Error("Error: Template does not contain a %%%");
-    } else {
-        const indexOfNewline = content.indexOf("\n", indexOfPercentages);
-
-        if (indexOfNewline === -1) {
-            return Result.Error("Error: Template does not contain a %%% ending within a newline");
-        } else {
-            return Result.Okay({
-                header: content.substring(0, indexOfPercentages),
-                parameters: content.substring(indexOfPercentages + 3, indexOfNewline).trim().split(/[ \t]+/),
-                body: content.substring(indexOfNewline + 1)
-            });
-        }
-    }
-};
+const parseContent = content =>
+    NativeString.indexOf("%%%")(content).reduce(
+        () =>
+            Result.Error("Error: Template does not contain a %%%"))(
+        indexOfPercentages =>
+            NativeString.indexOfFrom("\n")(indexOfPercentages)(content).reduce(
+                () =>
+                    Result.Error("Error: Template does not contain a %%% ending within a newline"))(
+                indexOfNewline =>
+                    Result.Okay({
+                        header: NativeString.substring(0)(indexOfPercentages)(content),
+                        parameters: NativeString.split(/[ \t]+/)(NativeString.trim(NativeString.substring(indexOfPercentages + 3)(indexOfNewline)(content))),
+                        body: NativeString.substringFrom(indexOfNewline + 1)(content)
+                    })
+            )
+    );
 
 
 const transform = content =>
