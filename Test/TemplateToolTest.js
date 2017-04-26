@@ -1,13 +1,45 @@
 const Assert = require("assert");
 const FileSystem = mrequire("core:System.IO.Native.FileSystem:1.0.0");
+const FS = require("fs");
 const Result = mrequire("core:Data.Result:1.0.0");
 const Unit = mrequire("core:Test.Unit:v1.0.0");
 
 
+const Use = require("../index.js");
 const Translate = require("../Tool/Template/Translate");
 
 
 const suite = Unit.newSuite("Text Template Suite");
+
+
+const denodeify = proc =>
+    new Promise((fulfill, reject) => {
+        proc((err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                fulfill(result);
+            }
+        });
+    });
+
+
+const futimes = fileDescriptor => atime => mtime =>
+    denodeify(cb => FS.futimes(fileDescriptor, atime, mtime, cb));
+
+
+const fclose = fileDescription =>
+    denodeify(cb => FS.close(fileDescription, cb));
+
+
+const touch = fileName => {
+    const fileDescriptor = FS.openSync(fileName, "r+");
+    const latestTime = new Date().getTime();
+
+    return futimes(fileDescriptor)(latestTime)(latestTime)
+        .then(_ => fclose(fileDescriptor));
+};
+
 
 Promise.all([
     FileSystem.readFile(__dirname + "/TemplateToolData/0001.input.txt"),
@@ -15,5 +47,15 @@ Promise.all([
 ]).then(output => {
     suite.case("simple template translation", () => {
         Assert.deepEqual(Translate(output[0]), Result.Okay(output[1]));
+    });
+});
+
+
+Promise.all([
+    FileSystem.readFile(__dirname + "/TemplateToolData/0002.output.txt"),
+    touch(__dirname + "/TemplateToolData/0002.input.template")
+]).then(output => {
+    suite.case("given a template name then when the template is used it produces the expected result", () => {
+        Assert.deepEqual(Use(__dirname + "/TemplateToolData/0002.input.template")("FieldA")("FieldB"), output[0]);
     });
 });

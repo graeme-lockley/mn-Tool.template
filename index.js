@@ -63,7 +63,7 @@ function compile(sourceName, targetName) {
 
     return SyncFileSystem.readFile(sourceName)
         .andThen(content => Translate(content))
-        .andThen(content => SyncFileSystem.writeFile(targetName, content));
+        .andThen(content => SyncFileSystem.writeFile(targetName)(content));
 }
 
 

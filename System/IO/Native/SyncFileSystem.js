@@ -1,5 +1,5 @@
 const FS = require("fs");
-const Maybe = mequire("core:Data.Native.Maybe:1.2.0");
+const Maybe = mrequire("core:Data.Native.Maybe:1.2.0");
 const Result = require("../../../Data/Native/Result");
 
 
@@ -17,7 +17,7 @@ const exists = name =>
 
 
 const fileExists = fileName =>
-    stat.map(x => x.isFile).reduce(() => false)(x => x);
+    stat(fileName).map(x => x.isFile()).reduce(() => false)(x => x);
 
 
 const readFile = fileName => {

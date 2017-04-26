@@ -1,0 +1,14 @@
+const Maybe = mrequire("core:Data.Maybe:v1.0.0");
+
+const someFun = a => b =>
+	`[${a}] -- [${b}]`;
+
+%%% a b
+const bob = something or others;
+
+
+Hello <% a %> - all the best from <% b %> and calling local <% someFun(a)(b) %>.
+
+
+We can also call an include package - <% Maybe.Just(a).withDefault("") %> and then call built in
+functions <% JSON.stringify(Maybe.Just(a), null, 2) %>

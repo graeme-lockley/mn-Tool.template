@@ -1,0 +1,13 @@
+const bob = something or others;
+
+
+Hello FieldA - all the best from FieldB and calling local [FieldA] -- [FieldB].
+
+
+We can also call an include package - FieldA and then call built in
+functions {
+  "value": [
+    0,
+    "FieldA"
+  ]
+}
