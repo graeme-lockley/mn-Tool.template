@@ -1,5 +1,5 @@
 const SyncFileSystem = mrequire("core:System.IO.Native.SyncFileSystem:1.0.0");
-const NativeString = require("../../Data/Native/String");
+const NativeString = mrequire("core:Data.Native.String:1.0.0");
 const Result = mrequire("core:Data.Result:1.0.0");
 const Template = mrequire("core:Text.Template:1.0.3");
 
