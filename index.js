@@ -1,4 +1,4 @@
-const SyncFileSystem = require("./System/IO/Native/SyncFileSystem");
+const SyncFileSystem = mrequire("core:System.IO.Native.SyncFileSystem:1.0.0");
 const Translate = require("./Tool/Template/Translate");
 
 
