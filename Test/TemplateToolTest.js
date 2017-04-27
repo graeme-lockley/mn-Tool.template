@@ -24,8 +24,10 @@ Promise.all([
 FileSystem.readFile(__dirname + "/TemplateToolData/0002.output.txt")
     .then(output => {
         suite.case("given a template name then when the template is used it produces the expected result", () => {
-            Use(__dirname + "/TemplateToolData/0002.input.template", __dirname + "/TemplateToolData/0002.input.js");
+            const use = Use(__dirname + "/TemplateToolData/0002.input.template")(__dirname + "/TemplateToolData/0002.input.js");
             const template = require(__dirname + "/TemplateToolData/0002.input.js");
+
+            Assert.equal(use.isOkay(), true);
             Assert.deepEqual(template("FieldA")("FieldB"), output);
         });
     });
