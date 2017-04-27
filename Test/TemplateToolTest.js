@@ -24,20 +24,24 @@ const denodeify = proc =>
     });
 
 
-const futimes = fileDescriptor => atime => mtime =>
+const open = fileName => options =>
+    denodeify(cb => FS.open(fileName, options, cb));
+
+
+const futimes = atime => mtime => fileDescriptor =>
     denodeify(cb => FS.futimes(fileDescriptor, atime, mtime, cb));
 
 
-const fclose = fileDescription =>
-    denodeify(cb => FS.close(fileDescription, cb));
+const close = fileDescriptor =>
+    denodeify(cb => FS.close(fileDescriptor, cb));
 
 
 const touch = fileName => {
-    const fileDescriptor = FS.openSync(fileName, "r+");
-    const latestTime = new Date().getTime();
+    const now = new Date();
 
-    return futimes(fileDescriptor)(latestTime)(latestTime)
-        .then(_ => fclose(fileDescriptor));
+    return open(fileName)("r+")
+        .then(fd => futimes(now)(now)(fd)
+            .then(close(fd)));
 };
 
 
