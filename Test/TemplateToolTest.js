@@ -8,15 +8,6 @@ const Use = require("../index.js");
 const Translate = require("../Tool/Template/Translate");
 
 
-const touch = fileName => {
-    const now = new Date();
-
-    return FileSystem.open(fileName)("r+")
-        .then(fd => FileSystem.futimes(now)(now)(fd)
-            .then(FileSystem.close(fd)));
-};
-
-
 const suite = Unit.newSuite("Text Template Suite");
 
 
@@ -30,11 +21,11 @@ Promise.all([
 });
 
 
-Promise.all([
-    FileSystem.readFile(__dirname + "/TemplateToolData/0002.output.txt"),
-    touch(__dirname + "/TemplateToolData/0002.input.template")
-]).then(output => {
-    suite.case("given a template name then when the template is used it produces the expected result", () => {
-        Assert.deepEqual(Use(__dirname + "/TemplateToolData/0002.input.template")("FieldA")("FieldB"), output[0]);
+FileSystem.readFile(__dirname + "/TemplateToolData/0002.output.txt")
+    .then(output => {
+        suite.case("given a template name then when the template is used it produces the expected result", () => {
+            Use(__dirname + "/TemplateToolData/0002.input.template", __dirname + "/TemplateToolData/0002.input.js");
+            const template = require(__dirname + "/TemplateToolData/0002.input.js");
+            Assert.deepEqual(template("FieldA")("FieldB"), output);
+        });
     });
-});
