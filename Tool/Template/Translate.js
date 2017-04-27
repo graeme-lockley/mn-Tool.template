@@ -1,11 +1,12 @@
-const FS = require("fs");
+const SyncFileSystem = mrequire("core:System.IO.Native.SyncFileSystem:1.0.0");
 const NativeString = require("../../Data/Native/String");
 const Result = mrequire("core:Data.Result:1.0.0");
 const Template = mrequire("core:Text.Template:1.0.3");
 
 
 const transformTemplate = model =>
-    Template.compile(FS.readFileSync(__dirname + "/translate.template", {encoding: "utf8"}))
+    SyncFileSystem.readFile(__dirname + "/translate.template")
+        .andThen(Template.compile)
         .andThen(t => Result.Okay(t.apply(model)));
 
 
